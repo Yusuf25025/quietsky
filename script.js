@@ -17,6 +17,13 @@
   let isHoveringBirthStar = false;
   const stars = [];
   const constellationLines = [];
+function render() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // draw stars
+  requestAnimationFrame(render);
+}
+
+render();
 
   // Special birth star configuration (click opens external link)
   // Update the link if you need to change the external destination later.
