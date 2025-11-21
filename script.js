@@ -22,7 +22,7 @@
   // Update the link if you need to change the external destination later.
   const birthStar = {
     name: 'December 7, 2008 — Birthday Star',
-    link: 'https://mybirthdaystar.pages.dev',
+    link: 'star.html',
     xMultiplier: 1.5, // places the star near the center of the second panel (panel-starfield)
     yRatio: 0.38, // relative vertical position; recalculated on resize
     hitbox: { leftPercent: 70, topPercent: 38 },
