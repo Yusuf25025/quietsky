@@ -2,6 +2,8 @@
   // === Starfield setup ===
   const canvas = document.getElementById('sky-canvas');
   const ctx = canvas.getContext('2d');
+  const skyWrapper = document.querySelector('.sky-wrapper');
+  const starHitbox = document.querySelector('.birthday-star-hitbox');
 
   let width = 0;
   let height = 0;
@@ -17,12 +19,13 @@
   const constellationLines = [];
 
   // Special birth star configuration (click opens external link)
-  // Update x/y to reposition and adjust the info text as desired.
+  // Update the link if you need to change the external destination later.
   const birthStar = {
     name: 'December 7, 2008 — Birthday Star',
     link: 'https://mybirthdaystar.pages.dev',
-    x: 620,
-    yRatio: 0.35, // relative vertical position; recalculated on resize
+    xMultiplier: 1.5, // places the star near the center of the second panel (panel-starfield)
+    yRatio: 0.38, // relative vertical position; recalculated on resize
+    hitbox: { leftPercent: 70, topPercent: 38 },
   };
 
   // Playlist data (edit title, artist, releaseDate, and audioSrc paths here)
@@ -138,6 +141,12 @@
     });
   }
 
+  function positionBirthdayHitbox() {
+    if (!starHitbox) return;
+    starHitbox.style.left = `${birthStar.hitbox.leftPercent}%`;
+    starHitbox.style.top = `${birthStar.hitbox.topPercent}%`;
+  }
+
   function resize() {
     width = window.innerWidth;
     height = window.innerHeight;
@@ -149,8 +158,13 @@
     canvas.style.height = height + 'px';
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
-    // Reposition the birth star vertically based on the viewport height.
+    // Reposition the birth star based on viewport size and keep it in the right-hand panel zone.
+    birthStar.x = width * birthStar.xMultiplier;
     birthStar.y = height * birthStar.yRatio;
+
+    if (skyWrapper) {
+      panX = skyWrapper.scrollLeft;
+    }
   }
 
   function randomBetween(min, max) {
@@ -182,7 +196,7 @@
       }
     }
 
-    birthStar.x = Math.min(Math.max(birthStar.x, 80), panoramaWidth - 80);
+    birthStar.x = Math.min(Math.max(width * birthStar.xMultiplier, 80), panoramaWidth - 80);
     birthStar.y = Math.min(Math.max(birthStar.y, 80), height - 80);
   }
 
@@ -262,33 +276,15 @@
   // Pointer handling for desktop + mobile: we only lock into a horizontal drag once
   // horizontal movement wins over vertical, so quick vertical swipes still scroll the page.
   function handlePointerDown(event) {
-    // Record both axes so we can decide later if the user meant to scroll vertically.
     isDragging = true;
     hasMoved = false;
     dragIntent = 'undetermined';
     startX = event.clientX;
     startY = event.clientY;
-    startPan = panX;
-  }
-
-  function updateHoverState(clientX, clientY) {
-    const panoramaWidth = getPanoramaWidth();
-    const normalizedPan = ((panX % panoramaWidth) + panoramaWidth) % panoramaWidth;
-    const realX = clientX + normalizedPan;
-    const wrappedX = ((realX % panoramaWidth) + panoramaWidth) % panoramaWidth;
-    const realY = clientY;
-    const dx = wrappedX - birthStar.x;
-    const dy = realY - birthStar.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const withinHalo = distance < 26;
-    isHoveringBirthStar = withinHalo;
-    canvas.style.cursor = withinHalo ? 'pointer' : 'default';
+    startPan = skyWrapper ? skyWrapper.scrollLeft : panX;
   }
 
   function handlePointerMove(event) {
-    // Check hover feedback even when not dragging
-    updateHoverState(event.clientX, event.clientY);
-
     if (!isDragging) return;
     const dx = event.clientX - startX;
     const dy = event.clientY - startY;
@@ -298,9 +294,6 @@
       const absY = Math.abs(dy);
       if (absX > 8 && absX > absY + 2) {
         dragIntent = 'horizontal';
-        if (canvas.setPointerCapture && event.pointerId != null) {
-          canvas.setPointerCapture(event.pointerId);
-        }
       } else if (absY > 10 && absY > absX) {
         dragIntent = 'vertical';
         isDragging = false;
@@ -311,58 +304,73 @@
     if (dragIntent !== 'horizontal') return;
 
     if (Math.abs(dx) > 4) hasMoved = true;
-    const panoramaWidth = getPanoramaWidth();
-    panX = (startPan - dx) % panoramaWidth;
+    const nextPan = startPan - dx;
+    if (skyWrapper) {
+      skyWrapper.scrollLeft = nextPan;
+      panX = skyWrapper.scrollLeft;
+    } else {
+      const panoramaWidth = getPanoramaWidth();
+      panX = (nextPan) % panoramaWidth;
+    }
     event.preventDefault();
   }
 
-  function handlePointerUp(event) {
-    if (dragIntent === 'horizontal' && canvas.releasePointerCapture && event.pointerId != null) {
-      canvas.releasePointerCapture(event.pointerId);
-    }
-
-    if (!isDragging && dragIntent !== 'horizontal') return;
-
+  function handlePointerUp() {
     isDragging = false;
-
-    // Tap detection only if the user wasn't intentionally scrolling vertically
-    const tapX = event.clientX;
-    const tapY = event.clientY;
-    const panoramaWidth = getPanoramaWidth();
-    const normalizedPan = ((panX % panoramaWidth) + panoramaWidth) % panoramaWidth;
-    const realX = tapX + normalizedPan;
-    const wrappedX = ((realX % panoramaWidth) + panoramaWidth) % panoramaWidth;
-    const realY = tapY;
-
-    const dx = wrappedX - birthStar.x;
-    const dy = realY - birthStar.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    if (!hasMoved && distance < 26 && dragIntent !== 'vertical') {
-      // The highlighted birthday star opens her page in a new tab.
-      window.open(birthStar.link, '_blank');
-    }
+    dragIntent = 'undetermined';
   }
 
   function handlePointerLeave() {
     isDragging = false;
     dragIntent = 'undetermined';
-    isHoveringBirthStar = false;
-    canvas.style.cursor = 'default';
   }
 
   function registerEvents() {
-    // Drag/swipe handling unified with pointer events to keep mobile browsers happy
-    // (avoids older optional-chaining touch code that could fail to parse on Android).
-    canvas.addEventListener('pointerdown', handlePointerDown, { passive: true });
-    canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
-    canvas.addEventListener('pointerup', handlePointerUp, { passive: true });
-    canvas.addEventListener('pointercancel', handlePointerUp, { passive: true });
-    canvas.addEventListener('pointerleave', handlePointerLeave, { passive: true });
+    if (skyWrapper) {
+      // Let horizontal drags on the wrapper move between panels while preserving vertical scrolls.
+      skyWrapper.addEventListener('pointerdown', handlePointerDown, { passive: true });
+      skyWrapper.addEventListener('pointermove', handlePointerMove, { passive: false });
+      skyWrapper.addEventListener('pointerup', handlePointerUp, { passive: true });
+      skyWrapper.addEventListener('pointercancel', handlePointerUp, { passive: true });
+      skyWrapper.addEventListener('pointerleave', handlePointerLeave, { passive: true });
+
+      // Keep the canvas parallax aligned with the horizontal scroll position.
+      skyWrapper.addEventListener('scroll', () => {
+        panX = skyWrapper.scrollLeft;
+      });
+    }
+
+    if (starHitbox) {
+      // Click opens the external birthday star link in a new tab.
+      starHitbox.addEventListener('click', () => {
+        window.open(birthStar.link, '_blank');
+      });
+
+      starHitbox.addEventListener('mouseenter', () => {
+        isHoveringBirthStar = true;
+        starHitbox.classList.add('is-hovered');
+      });
+
+      starHitbox.addEventListener('mouseleave', () => {
+        isHoveringBirthStar = false;
+        starHitbox.classList.remove('is-hovered');
+      });
+
+      starHitbox.addEventListener('touchstart', () => {
+        isHoveringBirthStar = true;
+        starHitbox.classList.add('is-hovered');
+      }, { passive: true });
+
+      starHitbox.addEventListener('touchend', () => {
+        isHoveringBirthStar = false;
+        starHitbox.classList.remove('is-hovered');
+      }, { passive: true });
+    }
 
     window.addEventListener('resize', () => {
       resize();
       generateStars();
+      positionBirthdayHitbox();
     });
   }
 
@@ -370,6 +378,7 @@
   resize();
   generateStars();
   renderPlaylist();
+  positionBirthdayHitbox();
   drawStars();
   registerEvents();
 })();
