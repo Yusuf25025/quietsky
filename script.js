@@ -8,8 +8,11 @@
   let panX = 0;
   let isDragging = false;
   let startX = 0;
+  let startY = 0;
   let startPan = 0;
   let hasMoved = false;
+  let dragIntent = 'undetermined';
+  let isHoveringBirthStar = false;
   const stars = [];
   const constellationLines = [];
 
@@ -29,56 +32,56 @@
       artist: 'Mariah Carey',
       year: 2008,
       releaseDate: '2008-07-01',
-      audioSrc: 'assets/ill_be_lovin_u_long_time.mp3',
+      audioSrc: 'audio/ill_be_lovin_u_long_time.mp3',
     },
     {
       title: 'Love Lockdown',
       artist: 'Kanye West',
       year: 2008,
       releaseDate: '2008-09-18',
-      audioSrc: 'assets/love_lockdown.mp3',
+      audioSrc: 'audio/love_lockdown.mp3',
     },
     {
       title: 'One Of The Boys',
       artist: 'Katy Perry',
       year: 2008,
       releaseDate: '2008-06-17',
-      audioSrc: 'assets/one_of_the_boys.mp3',
+      audioSrc: 'audio/one_of_the_boys.mp3',
     },
     {
       title: 'Viva La Vida',
       artist: 'Coldplay',
       year: 2008,
       releaseDate: '2008-05-25',
-      audioSrc: 'assets/viva_la_vida.mp3',
+      audioSrc: 'audio/viva_la_vida.mp3',
     },
     {
       title: 'Electric Feel',
       artist: 'MGMT',
       year: 2008,
       releaseDate: '2008-06-23',
-      audioSrc: 'assets/electric_feel.mp3',
+      audioSrc: 'audio/electric_feel.mp3',
     },
     {
       title: 'You Found Me',
       artist: 'The Fray',
       year: 2008,
       releaseDate: '2008-11-21',
-      audioSrc: 'assets/you_found_me.mp3',
+      audioSrc: 'audio/you_found_me.mp3',
     },
     {
       title: 'Only You',
       artist: 'Joshua Radin',
       year: 2008,
       releaseDate: '2008-01-01',
-      audioSrc: 'assets/only_you.mp3',
+      audioSrc: 'audio/only_you.mp3',
     },
     {
       title: 'Untouched',
       artist: 'The Veronicas',
       year: 2008,
       releaseDate: '2008-12-06',
-      audioSrc: 'assets/untouched.mp3',
+      audioSrc: 'audio/untouched.mp3',
     },
   ];
 
@@ -218,24 +221,32 @@
         ctx.fill();
       });
 
-      // Birth star glow and halo
-      const g = ctx.createRadialGradient(birthStar.x, birthStar.y, 0, birthStar.x, birthStar.y, 28);
+      // Birth star glow and halo (slightly stronger when hovered)
+      const hoverScale = isHoveringBirthStar ? 1.1 : 1;
+      const g = ctx.createRadialGradient(
+        birthStar.x,
+        birthStar.y,
+        0,
+        birthStar.x,
+        birthStar.y,
+        28 * hoverScale,
+      );
       g.addColorStop(0, 'rgba(143, 212, 255, 0.45)');
       g.addColorStop(1, 'rgba(143, 212, 255, 0)');
       ctx.fillStyle = g;
       ctx.beginPath();
-      ctx.arc(birthStar.x, birthStar.y, 24, 0, Math.PI * 2);
+      ctx.arc(birthStar.x, birthStar.y, 24 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.strokeStyle = 'rgba(143, 212, 255, 0.35)';
       ctx.lineWidth = 1.2;
       ctx.beginPath();
-      ctx.arc(birthStar.x, birthStar.y, 15, 0, Math.PI * 2);
+      ctx.arc(birthStar.x, birthStar.y, 15 * hoverScale, 0, Math.PI * 2);
       ctx.stroke();
 
       ctx.fillStyle = 'rgba(223, 240, 255, 0.95)';
       ctx.beginPath();
-      ctx.arc(birthStar.x, birthStar.y, 3.8, 0, Math.PI * 2);
+      ctx.arc(birthStar.x, birthStar.y, 3.8 * hoverScale, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.restore();
@@ -248,46 +259,96 @@
     return width * 3;
   }
 
+  // Pointer handling for desktop + mobile: we only lock into a horizontal drag once
+  // horizontal movement wins over vertical, so quick vertical swipes still scroll the page.
   function handlePointerDown(event) {
+    // Record both axes so we can decide later if the user meant to scroll vertically.
     isDragging = true;
     hasMoved = false;
+    dragIntent = 'undetermined';
     startX = event.clientX;
+    startY = event.clientY;
     startPan = panX;
-    if (canvas.setPointerCapture && event.pointerId != null) {
-      canvas.setPointerCapture(event.pointerId);
-    }
+  }
+
+  function updateHoverState(clientX, clientY) {
+    const panoramaWidth = getPanoramaWidth();
+    const normalizedPan = ((panX % panoramaWidth) + panoramaWidth) % panoramaWidth;
+    const realX = clientX + normalizedPan;
+    const wrappedX = ((realX % panoramaWidth) + panoramaWidth) % panoramaWidth;
+    const realY = clientY;
+    const dx = wrappedX - birthStar.x;
+    const dy = realY - birthStar.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    const withinHalo = distance < 26;
+    isHoveringBirthStar = withinHalo;
+    canvas.style.cursor = withinHalo ? 'pointer' : 'default';
   }
 
   function handlePointerMove(event) {
+    // Check hover feedback even when not dragging
+    updateHoverState(event.clientX, event.clientY);
+
     if (!isDragging) return;
-    const delta = event.clientX - startX;
-    if (Math.abs(delta) > 4) hasMoved = true;
+    const dx = event.clientX - startX;
+    const dy = event.clientY - startY;
+
+    if (dragIntent === 'undetermined') {
+      const absX = Math.abs(dx);
+      const absY = Math.abs(dy);
+      if (absX > 8 && absX > absY + 2) {
+        dragIntent = 'horizontal';
+        if (canvas.setPointerCapture && event.pointerId != null) {
+          canvas.setPointerCapture(event.pointerId);
+        }
+      } else if (absY > 10 && absY > absX) {
+        dragIntent = 'vertical';
+        isDragging = false;
+        return;
+      }
+    }
+
+    if (dragIntent !== 'horizontal') return;
+
+    if (Math.abs(dx) > 4) hasMoved = true;
     const panoramaWidth = getPanoramaWidth();
-    panX = (startPan - delta) % panoramaWidth;
+    panX = (startPan - dx) % panoramaWidth;
     event.preventDefault();
   }
 
   function handlePointerUp(event) {
-    if (!isDragging) return;
-    isDragging = false;
-    if (canvas.releasePointerCapture && event.pointerId != null) {
+    if (dragIntent === 'horizontal' && canvas.releasePointerCapture && event.pointerId != null) {
       canvas.releasePointerCapture(event.pointerId);
     }
 
+    if (!isDragging && dragIntent !== 'horizontal') return;
+
+    isDragging = false;
+
+    // Tap detection only if the user wasn't intentionally scrolling vertically
     const tapX = event.clientX;
     const tapY = event.clientY;
     const panoramaWidth = getPanoramaWidth();
     const normalizedPan = ((panX % panoramaWidth) + panoramaWidth) % panoramaWidth;
     const realX = tapX + normalizedPan;
+    const wrappedX = ((realX % panoramaWidth) + panoramaWidth) % panoramaWidth;
     const realY = tapY;
 
-    const dx = realX - birthStar.x;
+    const dx = wrappedX - birthStar.x;
     const dy = realY - birthStar.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    if (!hasMoved && distance < 26) {
+    if (!hasMoved && distance < 26 && dragIntent !== 'vertical') {
+      // The highlighted birthday star opens her page in a new tab.
       window.open(birthStar.link, '_blank');
     }
+  }
+
+  function handlePointerLeave() {
+    isDragging = false;
+    dragIntent = 'undetermined';
+    isHoveringBirthStar = false;
+    canvas.style.cursor = 'default';
   }
 
   function registerEvents() {
@@ -297,6 +358,7 @@
     canvas.addEventListener('pointermove', handlePointerMove, { passive: false });
     canvas.addEventListener('pointerup', handlePointerUp, { passive: true });
     canvas.addEventListener('pointercancel', handlePointerUp, { passive: true });
+    canvas.addEventListener('pointerleave', handlePointerLeave, { passive: true });
 
     window.addEventListener('resize', () => {
       resize();
