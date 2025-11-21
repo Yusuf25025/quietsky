@@ -87,6 +87,9 @@
       audioSrc: 'assets/untouched.mp3',
     },
   ];
+  let currentAudio = null;
+let audioPlayers = [];
+
 
   function formatDate(dateStr) {
     const date = new Date(dateStr);
@@ -139,6 +142,37 @@
       card.appendChild(audioWrapper);
       list.appendChild(card);
     });
+      const audio = document.createElement('audio');
+  audio.controls = true;
+  audio.src = song.audioSrc;
+
+  // keep track of it
+  audioPlayers.push(audio);
+// --- Audio behavior: one at a time + autoplay next ---
+audioPlayers.forEach((audio, index) => {
+  // When one starts playing, stop all others
+  audio.addEventListener('play', () => {
+    audioPlayers.forEach(other => {
+      if (other !== audio) {
+        other.pause();
+        other.currentTime = 0;
+      }
+    });
+    currentAudio = audio;
+  });
+
+  // When a track ends, start the next one automatically
+  audio.addEventListener('ended', () => {
+    const next = audioPlayers[index + 1];
+    if (next) {
+      next.play();
+      next.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      currentAudio = null;
+    }
+  });
+});
+
   }
 
   function positionBirthdayHitbox() {
