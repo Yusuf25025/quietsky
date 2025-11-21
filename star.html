@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Her Birthday Star</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --bg: #02030a;
+      --card: #090d1b;
+      --card-soft: #0d1224;
+      --accent: #c769ff;
+      --accent-soft: rgba(199, 105, 255, 0.35);
+      --text-main: #f7f7ff;
+      --text-soft: #a7b2d9;
+      --border-soft: #222844;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      background: radial-gradient(circle at top, #101633 0, #02030a 55%);
+      color: var(--text-main);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Starfield background */
+    .starfield {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
+        radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.18) 0 1.2px, transparent 2px),
+        radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.16) 0 1.3px, transparent 2px),
+        radial-gradient(circle at 90% 60%, rgba(255, 255, 255, 0.22) 0 1.1px, transparent 2px),
+        radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0 1px, transparent 2px),
+        #02030a;
+      background-size: 320px 320px, 420px 420px, 500px 500px, 640px 640px, 720px 720px;
+      animation: drift 60s linear infinite;
+      opacity: 0.9;
+    }
+
+    @keyframes drift {
+      from {
+        background-position: 0 0, 0 0, 0 0, 0 0, 0 0;
+      }
+      to {
+        background-position: 320px 320px, -420px 420px, 500px -500px, -640px -640px,
+          720px -720px;
+      }
+    }
+
+    header {
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.9rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .brand-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .back-link {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: radial-gradient(circle at top left, #232848 0, #050716 60%);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      backdrop-filter: blur(16px);
+    }
+
+    .back-link span {
+      font-size: 1.1rem;
+      transform: translateY(-1px);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      padding: 0.7rem 1.4rem 1.6rem;
+      gap: 1.4rem;
+    }
+
+    .panel {
+      flex: 0 0 360px;
+      max-width: 420px;
+      background: radial-gradient(circle at top left, #151a33 0, #070a18 60%);
+      border-radius: 1.4rem;
+      padding: 1.4rem 1.5rem 1.6rem;
+      border: 1px solid rgba(161, 174, 255, 0.18);
+      box-shadow:
+        0 18px 50px rgba(0, 0, 0, 0.55),
+        0 0 40px rgba(142, 105, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.03em;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+    }
+
+    .divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(
+        to right,
+        transparent,
+        rgba(255, 255, 255, 0.18),
+        transparent
+      );
+      margin: 0.6rem 0 0.4rem;
+    }
+
+    .fact-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.1rem;
+    }
+
+    .fact-value {
+      font-size: 0.92rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .poem {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text-soft);
+    }
+
+    .poem strong {
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .tag-row {
+      margin-top: 0.6rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: radial-gradient(circle at top, #272d55 0, #090c1c 60%);
+      color: var(--text-soft);
+    }
+
+    /* Star side */
+    .space {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .star-orbit {
+      position: relative;
+      width: min(52vh, 360px);
+      height: min(52vh, 360px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .orbit-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 999px;
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 40px rgba(255, 154, 190, 0.2);
+      opacity: 0.9;
+    }
+
+    .star {
+      width: 58%;
+      height: 58%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 25% 20%, #ffeff7 0, #ff7aa8 35%, #c22758 70%, #4a0b22 100%);
+      box-shadow:
+        0 0 80px rgba(255, 140, 180, 0.75),
+        0 0 160px rgba(255, 140, 200, 0.55);
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+      animation: pulse 4.5s ease-in-out infinite;
+    }
+
+    .star::after {
+      content: "";
+      position: absolute;
+      inset: 18%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.4), transparent 55%);
+      mix-blend-mode: screen;
+      opacity: 0.9;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow:
+          0 0 80px rgba(255, 140, 180, 0.75),
+          0 0 160px rgba(255, 140, 200, 0.55);
+      }
+      50% {
+        transform: scale(1.06);
+        box-shadow:
+          0 0 110px rgba(255, 160, 200, 0.9),
+          0 0 190px rgba(255, 170, 220, 0.65);
+      }
+    }
+
+    .star:hover {
+      transform: scale(1.07);
+    }
+
+    .label-chip {
+      position: absolute;
+      bottom: -3.4rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.5rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: radial-gradient(circle at top, #22284a 0, #090c1c 70%);
+      backdrop-filter: blur(16px);
+      font-size: 0.8rem;
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .label-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ff9ac8;
+      box-shadow: 0 0 12px rgba(255, 154, 200, 0.9);
+    }
+
+    .date-chip {
+      position: absolute;
+      top: -3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.35rem 0.85rem;
+      font-size: 0.78rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-soft);
+      backdrop-filter: blur(18px);
+    }
+
+    /* Mobile layout */
+    @media (max-width: 900px) {
+      body {
+        overflow-y: auto;
+      }
+
+      main {
+        flex-direction: column;
+        padding: 0.5rem 1rem 1.4rem;
+      }
+
+      .panel {
+        flex: unset;
+        width: 100%;
+        max-width: none;
+      }
+
+      .space {
+        padding: 1rem 0 1.1rem;
+      }
+
+      .star-orbit {
+        width: min(60vw, 320px);
+        height: min(60vw, 320px);
+      }
+
+      .label-chip {
+        bottom: -3rem;
+      }
+
+      header {
+        padding: 0.9rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="starfield"></div>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">✶</div>
+      <span>Her Sky</span>
+    </div>
+    <a class="back-link" href="index.html">
+      <span>←</span>
+      Back to the playlist
+    </a>
+  </header>
+
+  <main>
+    <!-- LEFT: INFO PANEL -->
+    <section class="panel">
+      <div>
+        <div class="panel-title">Keid — Her Birthday Star</div>
+        <p class="subtitle">
+          A quiet K-type star whose light began its journey toward Earth on
+          <strong>December 7th, 2008</strong>.
+        </p>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- FACTS (feel free to edit) -->
+      <div>
+        <div class="fact-label">Spectral Class</div>
+        <div class="fact-value">K1 V &middot; Warm main-sequence star</div>
+
+        <div class="fact-label">Distance</div>
+        <div class="fact-value">≈ 16.3 light years away</div>
+
+        <div class="fact-label">Constellation</div>
+        <div class="fact-value">Eridanus</div>
+
+        <div class="fact-label">Surface Temperature</div>
+        <div class="fact-value">~4,300 – 4,900 K</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- POETIC TEXT – EDIT THIS HOWEVER YOU WANT -->
+      <p class="poem">
+        On the night you were born, this star was already on its way — sending out light that
+        would take years to arrive here. Every photon that reaches us now started its journey
+        on <strong>your first evening in this world</strong>.  
+        When you look at Keid, you’re not just seeing a star; you’re seeing a memory the
+        universe kept for you.
+      </p>
+
+      <div class="tag-row">
+        <span class="tag">For December 7th, 2008</span>
+        <span class="tag">A light that remembers you</span>
+        <span class="tag">Your quiet corner of the sky</span>
+      </div>
+    </section>
+
+    <!-- RIGHT: STAR -->
+    <section class="space">
+      <div class="star-orbit">
+        <div class="orbit-ring"></div>
+
+        <!-- CLICKABLE STAR -->
+        <div
+          class="star"
+          onclick="window.open('https://mybirthdaystar.pages.dev', '_blank')"
+          title="Open the external birthday star page"
+        ></div>
+
+        <div class="date-chip">December 7th, 2008</div>
+
+        <div class="label-chip">
+          <span class="label-dot"></span>
+          <span>Tap to open the original star page</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
