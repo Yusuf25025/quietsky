@@ -9,26 +9,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-  <body>
-    <!-- Canvas background for the starfield. Drag/swipe support lives in script.js and keeps vertical scrolling intact. -->
-    <div class="sky-container">
-      <canvas id="sky-canvas" aria-label="Starfield canvas"></canvas>
-      <div class="overlay-gradient"></div>
+<body>
+  <!-- Canvas background for the starfield. Drag/swipe support lives in script.js and keeps vertical scrolling intact. -->
+  <div class="sky-container">
+    <canvas id="sky-canvas" aria-label="Starfield canvas"></canvas>
+    <div class="overlay-gradient"></div>
+  </div>
+
+  <main class="content">
+    <!--
+      Horizontal wrapper exposes a second panel of open sky so the birthday star is easy to see/tap.
+      The two panels snap on swipe (mobile + desktop), while vertical scrolling still works for the playlist height.
+    -->
+    <div class="sky-wrapper" aria-label="Sky panels">
+      <section class="panel panel-main">
+        <div class="intro">
+          <h1>For Someone Born Under a Gentle Sky</h1>
+          <p>Swipe or drag to wander across a quiet panorama of stars. Somewhere among them is the one whose light met Earth on <strong>December 7, 2008</strong>.</p>
+        </div>
+
+        <!-- Playlist cards are injected from script.js so you can edit the songs array directly there. -->
+        <section class="playlist" aria-label="Playlist">
+          <h2>Playlist for the Night</h2>
+          <div id="song-list" class="song-list"><!-- Populated by script.js --></div>
+        </section>
+      </section>
+
+      <section class="panel panel-starfield" aria-label="Birthday star panel">
+        <div class="star-panel-copy">
+          <p>Slide left to rest beneath a quieter part of the sky. Her birthday star waits here.</p>
+        </div>
+        <!--
+          Clickable overlay for the special birthday star.
+          Update the href/JS hook in script.js if you change the destination link later.
+        -->
+        <button class="birthday-star-hitbox" aria-label="Open birthday star page" type="button"></button>
+      </section>
     </div>
+  </main>
 
-    <main class="content">
-      <section class="intro">
-        <h1>For Someone Born Under a Gentle Sky</h1>
-        <p>Swipe or drag to wander across a quiet panorama of stars. Somewhere among them is the one whose light met Earth on <strong>December 7, 2008</strong>.</p>
-      </section>
-
-      <!-- Playlist cards are injected from script.js so you can edit the songs array directly there. -->
-      <section class="playlist" aria-label="Playlist">
-        <h2>Playlist for the Night</h2>
-        <div id="song-list" class="song-list"><!-- Populated by script.js --></div>
-      </section>
-    </main>
-
-    <script src="script.js"></script>
-  </body>
+  <script src="script.js"></script>
+</body>
 </html>
