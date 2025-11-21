@@ -71,7 +71,7 @@ body {
 .playlist {
   position: relative;
   margin: 0 auto;
-  max-width: 520px;
+  max-width: 560px;
   background: linear-gradient(145deg, rgba(10, 13, 26, 0.7), rgba(12, 18, 35, 0.5));
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -109,8 +109,8 @@ body {
 }
 
 .song-icon {
-  width: 38px;
-  height: 38px;
+  width: 42px;
+  height: 42px;
   display: grid;
   place-items: center;
   border-radius: 12px;
@@ -118,6 +118,12 @@ body {
   color: var(--text-main);
   font-size: 18px;
   box-shadow: var(--glow);
+}
+
+.song-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .song-title {
@@ -129,7 +135,6 @@ body {
 .song-artist {
   color: var(--text-sub);
   font-size: 14px;
-  margin-bottom: 1px;
 }
 
 .song-year {
@@ -138,83 +143,56 @@ body {
   letter-spacing: 0.02em;
 }
 
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  z-index: 3;
-  padding: 16px;
-}
-
-.modal.show {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.modal-content {
-  background: radial-gradient(circle at 30% 20%, rgba(143, 212, 255, 0.18), rgba(2, 3, 10, 0.95));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 28px rgba(143, 212, 255, 0.22);
-  border-radius: 18px;
-  padding: 20px 18px;
-  max-width: 420px;
+.audio-player {
+  grid-column: 1 / -1;
   width: 100%;
-  position: relative;
+  margin-top: 8px;
+  background: rgba(10, 14, 30, 0.6);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
-.close-button {
-  position: absolute;
-  top: 10px;
-  right: 12px;
+.audio-player audio {
+  width: 100%;
+  filter: drop-shadow(0 0 8px rgba(143, 212, 255, 0.18));
+}
+
+/* Subtle cleanup for built-in audio UI */
+.audio-player audio::-webkit-media-controls-panel {
   background: transparent;
-  border: none;
-  color: var(--text-main);
-  font-size: 24px;
-  cursor: pointer;
+  border-radius: 8px;
 }
 
-.modal-label {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+.audio-player audio::-webkit-media-controls-play-button,
+.audio-player audio::-webkit-media-controls-mute-button {
+  filter: drop-shadow(0 0 4px rgba(143, 212, 255, 0.4));
+}
+
+.audio-player audio::-webkit-media-controls-current-time-display,
+.audio-player audio::-webkit-media-controls-time-remaining-display {
   color: var(--text-sub);
   font-size: 12px;
-  margin-bottom: 6px;
 }
 
-.modal-content h3 {
-  font-family: var(--font-heading);
-  font-size: 24px;
-  margin-bottom: 6px;
-  color: var(--text-main);
-}
+@media (max-width: 520px) {
+  .content {
+    padding: 14vh 5vw 10vh;
+  }
 
-.modal-subtext {
-  color: var(--text-sub);
-  margin-bottom: 12px;
-}
+  .song-card {
+    grid-template-columns: auto 1fr;
+  }
 
-.star-details {
-  list-style: none;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  margin-bottom: 14px;
-  color: var(--text-main);
-}
+  .song-title {
+    font-size: 15px;
+  }
 
-.star-details strong {
-  color: var(--text-main);
-}
-
-.modal-description {
-  color: var(--text-sub);
-  line-height: 1.6;
+  .song-artist,
+  .song-year {
+    font-size: 13px;
+  }
 }
 
 @media (min-width: 720px) {
