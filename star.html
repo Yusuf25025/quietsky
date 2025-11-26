@@ -105,6 +105,7 @@
       align-items: center;
       justify-content: center;
       font-size: 12px;
+      line-height: 1;          /* keeps the star perfectly centered */
     }
 
     .back-link {
@@ -322,31 +323,6 @@
       transform: scale(1.07);
     }
 
-    .label-chip {
-      position: absolute;
-      bottom: -3.4rem;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 0.5rem 0.9rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: radial-gradient(circle at top, #22284a 0, #090c1c 70%);
-      backdrop-filter: blur(16px);
-      font-size: 0.8rem;
-      color: var(--text-soft);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .label-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #ff9ac8;
-      box-shadow: 0 0 12px rgba(255, 154, 200, 0.9);
-    }
-
     .date-chip {
       position: absolute;
       top: -3rem;
@@ -394,9 +370,13 @@
       position: fixed;
       bottom: 1.6rem;
       right: 1.4rem;
+      width: 44px;              /* perfect circle */
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: radial-gradient(circle, #313a6f 0, #0b0f1f 70%);
       border-radius: 50%;
-      padding: 0.6rem 0.7rem;
       font-size: 1.1rem;
       border: 1px solid rgba(255,255,255,0.25);
       box-shadow: 0 0 16px rgba(199,105,255,0.35);
@@ -435,10 +415,6 @@
       .star-orbit {
         width: min(70vw, 340px);
         height: min(70vw, 340px);
-      }
-
-      .label-chip {
-        bottom: -2.4rem;
       }
 
       .date-chip {
@@ -499,7 +475,7 @@
       <p class="poem">
         On the night you were born, this star was already on its way — sending out light that
         would take years to arrive here. Every photon that reaches us now started its journey
-        on <strong>your first evening in this world</strong>.  
+        on <strong>your first evening in this world</strong>.<br />
         When you look at Keid, you’re not just seeing a star; you’re seeing a memory the
         universe kept for you.
       </p>
@@ -524,13 +500,7 @@
         ></div>
 
         <div class="star-bottom-glow"></div>
-
         <div class="date-chip">December 7th, 2008</div>
-
-        <div class="label-chip">
-          <span class="label-dot"></span>
-          <span>Tap to open the original star page</span>
-        </div>
       </div>
     </section>
   </main>
